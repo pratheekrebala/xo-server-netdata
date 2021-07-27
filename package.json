@@ -1,0 +1,15 @@
+{
+  "name": "xo-server-netdata",
+  "version": "0.0.1",
+  "description": "A community plugin to setup netdata on XCP servers and enable telemetry on Xen Orchestra.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@xen-orchestra/log": "^0.2.1",
+    "execa": "^5.1.1"
+  }
+}
