@@ -114,8 +114,8 @@ class NetData {
 
         await writeFile('/etc/netdata/stream.conf', configData)
         
-        await execa('systemctl', ['netdata', 'enable'])
-        await execa('systemctl', ['netdata', 'restart'])
+        await execa('systemctl', ['enable', 'netdata'])
+        await execa('systemctl', ['restart', 'netdata'])
 
         const [enabled, error] = await getNetDataStatus()
         if (error) throw error;
