@@ -117,7 +117,7 @@ class NetData {
         await execa('systemctl', ['enable', 'netdata'])
         await execa('systemctl', ['restart', 'netdata'])
 
-        const [enabled, error] = await getNetDataStatus()
+        const [enabled, error] = await this.getNetDataStatus()
         if (error) throw error;
 
         return enabled
@@ -165,7 +165,7 @@ class NetData {
 
     async isConfiguredToReceiveStreaming() {
         // Ensure NetData is installed on the main server.
-        await getNetDataStatus();
+        await this.getNetDataStatus();
 
         // Check if the contents of stream.conf are what we expect them to be.
         const currentConfig = await fs.readFile('/etc/netdata/stream.conf');
@@ -179,7 +179,7 @@ class NetData {
     // This method is called on both re-configuration & on 
     async load() {
         // Check if NetData is available on the server, install it if it is not.
-        await getNetDataStatus();
+        await this.getNetDataStatus();
 
         // Configure NetData receiver on XOA vm
         await configureXoaToReceiveData();
