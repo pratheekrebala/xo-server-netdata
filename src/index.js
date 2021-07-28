@@ -40,6 +40,8 @@ class NetData {
 
     async configure(conf, state) {
         this._conf = conf;
+        this._conf.hosts = this._conf.hosts.map(host_id => this._xo.getObject(host_id, 'host'));
+
         if (state.loaded) {
             // plugin is already loaded, so let's go ahead and reload the configuration.
             await this.unload();
@@ -88,9 +90,9 @@ class NetData {
     }
 
     async getHostApiKey({ host }) {
-        const host_xapi = this._xo.getXapi(host);
+        const host_xapi = this._xo.getXapi(host.uuid);
         const api_key = host_xapi.call(
-            'host.call_plugin', host._xapiRef,
+            'host.call_plugin', host.$ref,
             'netdata.py', 'get_netdata_api_key',
             {}
         );
@@ -125,12 +127,12 @@ class NetData {
 
     async isNetDataInstalledOnHost({ host }) {
         // get an xapi handle on the host
-        const host_xapi = this._xo.getXapi(host);
+        const host_xapi = this._xo.getXapi(host.uuid);
 
         // call the `is_netdata_installed` plugin on xcp
         try {
             await host_xapi.call(
-                'host.call_plugin', host._xapiRef,
+                'host.call_plugin', host.$ref,
                 'netdata.py', 'is_netdata_installed', {}
             )
             return true;
@@ -142,8 +144,8 @@ class NetData {
 
     // find a routable ip address for the provided host
     // this is v hacky, probably should allow user to specify
-    async getRoutableIP(host) {
-        const route = await execa('ip', ['route', 'get', host]);
+    async getRoutableIP(host_address) {
+        const route = await execa('ip', ['route', 'get', host_address]);
         const route_elements = route.stdout.split(' ');
         const source_ip = route_elements[route_elements.indexOf('src')+1];
 
@@ -151,13 +153,14 @@ class NetData {
     }
 
     async configureHostToStreamHere({ host }) {
-        const host_xapi = this._xo.getXapi(host);
-        const routable_ip = await this.getRoutableIP(host);
+        const host_xapi = this._xo.getXapi(host.uuid);
+        
+        const routable_ip = await this.getRoutableIP(host.address);
         const destination = `tcp:${routable_ip}:${this._conf.port}`;
         const api_key = this.getLocalApiKey();
 
         return host_xapi.call(
-            'host.call_plugin', host._xapiRef, 
+            'host.call_plugin', host.$ref, 
             "netdata.py", "install_netdata",
             { api_key, destination }
         )
@@ -191,11 +194,11 @@ class NetData {
                 const success = await this.isNetDataInstalledOnHost({ host });
 
                 if (!success) {
-                    const error = Error(`Installation on ${host} failed.`);
+                    const error = Error(`Installation on ${host.uuid} failed.`);
                     log.error(error.message);
                     throw error
                 } else {
-                    log.info(`NetData successfully installed on ${host}`);
+                    log.info(`NetData successfully installed on ${host.uuid}`);
                 }
             })
         );
