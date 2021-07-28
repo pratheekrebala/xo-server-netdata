@@ -2,7 +2,7 @@
   "name": "xo-server-netdata",
   "version": "0.0.1",
   "description": "A community plugin to setup netdata on XCP servers and enable telemetry on Xen Orchestra.",
-  "main": "index.js",
+  "main": "./dist",
   "scripts": {
     "build": "cross-env NODE_ENV=production babel --source-maps --out-dir=dist/ src/",
     "dev": "cross-env NODE_ENV=development babel --watch --source-maps --out-dir=dist/ src/",
