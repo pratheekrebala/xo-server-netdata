@@ -157,7 +157,7 @@ class NetData {
         
         const routable_ip = await this.getRoutableIP(host.address);
         const destination = `tcp:${routable_ip}:${this._conf.port}`;
-        const api_key = this.getLocalApiKey();
+        const api_key = await this.getLocalApiKey();
 
         return host_xapi.call(
             'host.call_plugin', host.$ref, 
