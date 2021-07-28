@@ -182,7 +182,7 @@ class NetData {
         await this.getNetDataStatus();
 
         // Configure NetData receiver on XOA vm
-        await configureXoaToReceiveData();
+        await this.configureXoaToReceiveData();
 
         // Iterate through each of the hosts and deploy NetData
         await Promise.all(
