@@ -40,7 +40,7 @@ class NetData {
 
     async configure(conf, state) {
         this._conf = conf;
-        this._conf.hosts = this._conf.hosts.map(host_id => this._xo.getObject(host_id, 'host'));
+        this._conf.hosts = this._conf.hosts.map(host_id => this._xo.getXapiObject(host_id, 'host'));
 
         if (state.loaded) {
             // plugin is already loaded, so let's go ahead and reload the configuration.
@@ -84,7 +84,7 @@ class NetData {
     // should this be user-configurable?
     async getLocalApiKey() {
         const machine_guid_location = '/var/lib/netdata/registry/netdata.public.unique.id';
-        const machine_guid = await readFile(machine_guid_location);
+        const machine_guid = await readFile(machine_guid_location, 'utf8');
         log.info(`NetData receiver is identified by: ${machine_guid}`)
         return machine_guid;    
     }
@@ -171,7 +171,7 @@ class NetData {
         await this.getNetDataStatus();
 
         // Check if the contents of stream.conf are what we expect them to be.
-        const currentConfig = await fs.readFile('/etc/netdata/stream.conf');
+        const currentConfig = await fs.readFile('/etc/netdata/stream.conf', 'utf8');
         const expectedConfig = await this.streamConfiguration();
 
         return currentConfig == expectedConfig;
@@ -235,7 +235,10 @@ class NetData {
         }};
 
         const apiMethods = Object.entries(methods).map(([method_name, attributes]) => {
-            const method = Object.defineProperties(this[method_name], attributes);
+            const method = this[method_name];
+            for (const [key, value] of Object.entries(attributes)) {
+                method[key] = value
+            };
             return [method_name, method]
         });
 
