@@ -186,7 +186,7 @@ class NetData {
 
         // Iterate through each of the hosts and deploy NetData
         await Promise.all(
-            map(this._conf.hosts, async (host) => {
+            this._conf.hosts.map(async (host) => {
                 await this.configureHostToStreamHere({ host });
                 const success = await this.isNetDataInstalledOnHost({ host });
 
