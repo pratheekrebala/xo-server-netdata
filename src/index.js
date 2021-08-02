@@ -262,7 +262,7 @@ class NetData {
         }};
 
         const apiMethods = Object.entries(methods).map(([method_name, attributes]) => {
-            const method = this[method_name];
+            const method = (params) => this[method_name](params);
             for (const [key, value] of Object.entries(attributes)) {
                 method[key] = value
             };
