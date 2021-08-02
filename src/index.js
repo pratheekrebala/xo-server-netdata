@@ -5,6 +5,9 @@ import { readFile, writeFile } from 'fs/promises';
 
 const log = createLogger('xo:xo-server:netdata');
 
+const NETDATA_REPO = 'https://packagecloud.io/netdata/netdata/debian/';
+const NETDATA_KEY = 'https://packagecloud.io/netdata/netdata/gpgkey';
+
 export const configurationSchema = {
     description: 'Enable advanced telemetry on hosts using the NetData integration.',
     type: 'object',
@@ -109,6 +112,28 @@ class NetData {
         default memory mode = ram
 `;
         return configData;
+    }
+
+    async installNetData() {
+        // fetch gpg key and add to keyring
+        const keyring_path = '/usr/share/keyrings/netdata.gpg';
+        
+        await execa(
+            `wget -q -O- "${NETDATA_KEY}" | sudo apt-key --keyring ${keyring_path} add -`,
+            { shell: true }
+        );
+        
+        // get distribution
+        const { stdout: distribution } = await execa('lsb_release', ['-cs']);
+
+        // add to apt sources
+        const repo = `deb [signed-by=${keyring_path}] ${NETDATA_REPO} ${distribution} main`;
+        
+        await writeFile('/etc/apt/sources.list.d/netdata.list', repo);
+        
+        await execa('apt', ['update']);
+
+        await execa('apt', ['install', '-y', 'netdata'])
     }
 
     async configureXoaToReceiveData() {
