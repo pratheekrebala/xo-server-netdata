@@ -43,7 +43,6 @@ class NetData {
 
     async configure(conf, state) {
         this._conf = conf;
-        this._conf.hosts = this._conf.hosts.map(host_id => this._xo.getXapiObject(host_id, 'host'));
 
         if (state.loaded) {
             // plugin is already loaded, so let's go ahead and reload the configuration.
