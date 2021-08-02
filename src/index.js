@@ -45,9 +45,12 @@ class NetData {
         this._conf = conf;
 
         if (state.loaded) {
+	        log.info('Reloading configuration');
             // plugin is already loaded, so let's go ahead and reload the configuration.
-            await this.unload();
-            await this.load();
+            // and initialize the hosts
+            await this.getNetDataStatus();
+            await this.configureXoaToReceiveData();
+            await this.initialize();
         }
     }
 
