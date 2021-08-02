@@ -26,7 +26,7 @@ export const configurationSchema = {
             description: 'Hosts to enable telemetry on.',
             items: {
                 type: 'string',
-                $type: 'host'
+                $type: 'Host'
             }
         }
     },
@@ -95,13 +95,12 @@ class NetData {
     }
 
     async getHostApiKey({ host }) {
-        const host_xapi = this._xo.getXapi(host.uuid);
-        const api_key = host_xapi.call(
-            'host.call_plugin', host.$ref,
+        const host_xapi = this._xo.getXapi(host);
+        const api_key = await host_xapi.call(
+            'host.call_plugin', host._xapiRef,
             'netdata.py', 'get_netdata_api_key',
             {}
         );
-        
         return api_key;
     }
 
@@ -154,12 +153,11 @@ class NetData {
 
     async isNetDataInstalledOnHost({ host }) {
         // get an xapi handle on the host
-        const host_xapi = this._xo.getXapi(host.uuid);
-
+        const host_xapi = this._xo.getXapi(host);
         // call the `is_netdata_installed` plugin on xcp
         try {
             await host_xapi.call(
-                'host.call_plugin', host.$ref,
+                'host.call_plugin', host._xapiRef,
                 'netdata.py', 'is_netdata_installed', {}
             )
             return true;
@@ -180,14 +178,14 @@ class NetData {
     }
 
     async configureHostToStreamHere({ host }) {
-        const host_xapi = this._xo.getXapi(host.uuid);
+        const host_xapi = this._xo.getXapi(host);
         
         const routable_ip = await this.getRoutableIP(host.address);
         const destination = `tcp:${routable_ip}:${this._conf.port}`;
         const api_key = await this.getLocalApiKey();
 
         return host_xapi.call(
-            'host.call_plugin', host.$ref, 
+            'host.call_plugin', host._xapiRef, 
             "netdata.py", "install_netdata",
             { api_key, destination }
         )
@@ -204,19 +202,14 @@ class NetData {
         return currentConfig == expectedConfig;
     }
 
-
-    // All plugins have load and un-load methods.
-    // This method is called on both re-configuration & on 
-    async load() {
-        // Check if NetData is available on the server, install it if it is not.
-        await this.getNetDataStatus();
-
-        // Configure NetData receiver on XOA vm
-        await this.configureXoaToReceiveData();
+    async initialize() {
+        const hosts = this._conf.hosts.map(
+            host_id => this._xo.getObject(host_id, 'host')
+        );
 
         // Iterate through each of the hosts and deploy NetData
         await Promise.all(
-            this._conf.hosts.map(async (host) => {
+            hosts.map(async (host) => {
                 await this.configureHostToStreamHere({ host });
                 const success = await this.isNetDataInstalledOnHost({ host });
 
@@ -229,6 +222,19 @@ class NetData {
                 }
             })
         );
+    }
+
+    // All plugins have load and un-load methods.
+    // This method is called on both re-configuration & on 
+    async load() {
+        log.info(this);
+        // Get Host Objects
+
+        // Check if NetData is available on the server, install it if it is not.
+        await this.getNetDataStatus();
+
+        // Configure NetData receiver on XOA vm
+        await this.configureXoaToReceiveData();
         
         const host_param = { host: { type: "string" }};
         const can_administrate_host = { host: ['host', 'host', 'administrate'] };
