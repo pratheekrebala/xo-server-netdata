@@ -277,7 +277,7 @@ class NetData {
     async unload() {
         this._unsetApiMethods();
 
-        await execa('systemctl', ['disable', 'netdata']);
+        /* await execa('systemctl', ['disable', 'netdata']);
         // ensure this is done
         const [status, error] = await this.getNetDataStatus();
         if (status) {
@@ -286,7 +286,7 @@ class NetData {
             throw err;
         } else {
             log.info('NetData disabled, plugin successfully unloaded.');
-        }
+        } */
     }
 }
 
