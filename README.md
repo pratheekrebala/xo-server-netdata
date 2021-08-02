@@ -12,22 +12,22 @@ This is an attempt at automating the installation of netdata for XCP-NG servers 
 
 1. Deploy plugin methods that the Xen Orchestra front-end relies on to test if the installation is done. This will enable the interface to receive this data directly.
 
-    1. netdata.isConfiguredToReceiveStreaming
+    1. netdata.isConfiguredToReceiveStreaming [ref](https://github.com/vatesfr/xen-orchestra/blob/f2a860b01a91795aeb7ff0453a82403fb2048764/packages/xo-web/src/common/xo/index.js#L633)
         - Guessing this should return true if everything is configured correctly.
         - This is checked by the UI to enable the telemetry.
-    1. netdata.configureXoaToReceiveData
+    1. netdata.configureXoaToReceiveData [ref](https://github.com/vatesfr/xen-orchestra/blob/f2a860b01a91795aeb7ff0453a82403fb2048764/packages/xo-web/src/common/xo/index.js#L635)
         - This should be run before configuring the host.
         - Installs netdata, gets the local key and writes the appropriate configuration.
         - Stub this with error message that our plugin requires global settings.
-    1. netdata.configureHostToStreamHere
+    1. netdata.configureHostToStreamHere [ref](https://github.com/vatesfr/xen-orchestra/blob/f2a860b01a91795aeb7ff0453a82403fb2048764/packages/xo-web/src/common/xo/index.js#L637)
         - This should be run after `configureXoaToReceiveData`. (becuase we need local api key)
         - Calls the `install_netdata` XAPI method using ip of Orchestra, a local api key and the port.
         - Stub this with error message that our plugin requires global settings.
-    1. netdata.isNetDataInstalledOnHost
+    1. netdata.isNetDataInstalledOnHost [ref](https://github.com/vatesfr/xen-orchestra/blob/f2a860b01a91795aeb7ff0453a82403fb2048764/packages/xo-web/src/common/xo/index.js#L644)
         - This simply checks if the service is installed and enabled.
-    1. netdata.getHostApiKey
+    1. netdata.getHostApiKey [ref](https://github.com/vatesfr/xen-orchestra/blob/f2a860b01a91795aeb7ff0453a82403fb2048764/packages/xo-web/src/common/xo/index.js#L649)
         - This should return the api key used by the netdata on the host machine.
-    1. netdata.getLocalApiKey
+    1. netdata.getLocalApiKey[ref](https://github.com/vatesfr/xen-orchestra/blob/f2a860b01a91795aeb7ff0453a82403fb2048764/packages/xo-web/src/common/xo/index.js#L652)
         - This should return the local api key from the Orchestra VM.
 
 
