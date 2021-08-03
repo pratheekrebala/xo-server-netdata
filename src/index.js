@@ -262,6 +262,9 @@ class NetData {
             permission: 'admin',
             params: host_param,
             resolve: can_administrate_host
+        }, installNetData: {
+            description: 'Install latest up-stream NetData package.',
+            permission: 'admin'
         }};
 
         const apiMethods = Object.entries(methods).map(([method_name, attributes]) => {
