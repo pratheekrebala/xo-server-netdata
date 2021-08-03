@@ -79,8 +79,8 @@ class NetData {
         if (error) {
             log.error(error.message, { status } )
             error.data = status;
-            return [false, error]
-        } else return [true, null]
+            throw error;
+        } else return true
     }
 
     // get guid of netdata instance that is installed on the xen orchestra vm
@@ -145,10 +145,7 @@ class NetData {
         await execa('systemctl', ['enable', 'netdata'])
         await execa('systemctl', ['restart', 'netdata'])
 
-        const [enabled, error] = await this.getNetDataStatus()
-        if (error) throw error;
-
-        return enabled
+        return await this.getNetDataStatus()
     }
 
     async isNetDataInstalledOnHost({ host }) {
